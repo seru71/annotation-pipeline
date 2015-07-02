@@ -1,15 +1,17 @@
-# bin directory
-
-Contains all links to all the pipeline programs
-
-
 ## Pipeline
 
-The NGS pipeline can be run using one of two python scripts:
+Variant annotation pipeline using annovar, and a toolbox of variant-table manipulation scripts.
 
-### pipeline_multisample.py
+### annotation_pipeline.py
 
-Main pipeline script for *multi sample analysis*.
+-------------------------------
+--------- To be updated -------
+-------------------------------
+
+
+The script for annotating variants with location (gene, exon, intron), effect on protein (synonymous, nonsynonymous, stopgain), 
+and various pathogenicity scores (OMIM, PolyPhen, CADD). 
+
 
 *   Running the script
 
@@ -44,12 +46,6 @@ Main pipeline script for *multi sample analysis*.
 	cp ~/tools/ExomeSeqGenotypigPipeline/pipeline_settings.cfg .
 	vi pipeline_settings.cfg  ## insert correct paths to the bam files, ref genome, executables, etc.
 	pipeline_multisample.py -s pipeline_settings.cfg -t split_snps -vvvvv -j 12
-
-
-### pipeline_annovar.py
-
-The script for annotating variants with location (gene, exon, intron), effect on protein (synonymous, nonsynonymous, stopgain), 
-and various pathogenicity scores (OMIM, PolyPhen, CADD). 
 
 
 
