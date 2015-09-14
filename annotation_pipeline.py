@@ -17,7 +17,7 @@ import sys
 import os
 import glob
 import string
-
+import shutil
 
 if __name__ == '__main__':
     from optparse import OptionParser
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     annovar_human_db = config.get('Resources','annovar-humandb-dir')
     annovar_1000genomes_eur = config.get('Resources','annovar-1000genomes-eur')
     annovar_1000genomes_eur_maf = config.get('Resources','annovar-1000genomes-eur-MAF-cutoff')
-    annovar_inhouse_db = config.get('Resources','annovar-inhouse-db')
+    annovar_inhouse_dbs = config.get('Resources','annovar-inhouse-dbs')
     omim_gene_phenotype_map_file = config.get('Resources','omim_gene_phenotype_map')
 
 
@@ -328,19 +328,36 @@ def filter_common_1000genomes(input, outputs):
                                         ['.hg19_EUR.sites.2014_10_filtered.common_inhouse_filtered',
                                          '.hg19_EUR.sites.2014_10_filtered.common_inhouse_dropped'])
 def filter_common_inhouse(inputs, outputs):
-    filtered = inputs[0]                      # take only the filtered file, leave dropped
+    """ filter variants found in the inhouse databases """
 
-    """ filter variants found in the inhouse database. OBS! output specifies the filename after rename """    
-    run_cmd("{tool} -build hg19 -filter -dbtype generic -genericdbfile {inhouse} \
-        -outfile {outfile} {input} {annodb}".format(
-        tool=annovar_annotate,
-        inhouse=annovar_inhouse_db, 
-        outfile=filtered, 
-        input=filtered, 
-        annodb=annovar_human_db))
+    inhouse_dbs = annovar_inhouse_dbs.split(';')
 
-    for output_file in outputs: 
-        os.rename(output_file.replace('common_inhouse','hg19_generic'), output_file)
+    # take only the filtered file, leave dropped. Copy it to temp file
+    filtered = inputs[0]+'.tmp'     
+    shutil.copyfile(inputs[0], filtered)
+    
+    for inhouse_db in inhouse_dbs:
+        if inhouse_db.strip() == '':
+            continue
+        
+        run_cmd("{tool} -build hg19 -filter -dbtype generic -genericdbfile {inhouse} \
+                -outfile {outfile} {input} {annodb}".format(
+                                                        tool=annovar_annotate,
+                                                        inhouse=inhouse_db, 
+                                                        outfile=filtered, 
+                                                        input=filtered, 
+                                                        annodb=annovar_human_db))
+        
+        for output_file in outputs: 
+            os.rename(output_file.replace('common_inhouse','hg19_generic'), output_file)
+
+        # copy the filtered output to input, for next iteration
+        shutil.copyfile(outputs[0].replace('common_inhouse_filtered','hg19_generic_filtered'), filtered)
+    
+    # delete the temp file
+    os.remove(filtered)
+
+        
 
 
 
