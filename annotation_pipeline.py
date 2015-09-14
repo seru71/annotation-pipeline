@@ -344,7 +344,7 @@ def filter_common_inhouse(inputs, outputs):
                 -outfile {outfile} {input} {annodb}".format(
                                                         tool=annovar_annotate,
                                                         inhouse=inhouse_db, 
-                                                        outfile=filtered, 
+                                                        outfile=filtered[:-len('.tmp')], 
                                                         input=filtered, 
                                                         annodb=annovar_human_db))
         
@@ -352,7 +352,7 @@ def filter_common_inhouse(inputs, outputs):
             os.rename(output_file.replace('common_inhouse','hg19_generic'), output_file)
 
         # copy the filtered output to input, for next iteration
-        shutil.copyfile(outputs[0].replace('common_inhouse_filtered','hg19_generic_filtered'), filtered)
+        shutil.copyfile(outputs[0], filtered)
     
     # delete the temp file
     os.remove(filtered)
